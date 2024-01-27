@@ -1,4 +1,4 @@
-using LazyGrids, FFTW, FourierTools, Base.Threads, Dates, HDF5, CUDA
+using LazyGrids, FFTW, FourierTools, Base.Threads, Dates, HDF5, AMDGPU
 
 # FFT -> /omegaMAX ; IFFT -> * omegaMAX
 
@@ -82,10 +82,13 @@ function runcalc()
     fft_x_kx = plan_fft(Axt, 2)
     ifft_o_t = plan_ifft(Axt, 1)
     ifft_kx_x = plan_ifft(Axt, 2) =#
+    groupsize = (32,32)
+	gridsize = (cld(inputs.Nt,32),cld(inputs.Nx,32))
+#  @roc groupsize=groupsize gridsize=gridsize changenanKernel(in)
   alpha = aTHzo(comegaTHz, 300, inputs.cry)
   padding = zeros(inputs.Nt, inputs.Nx)
   #fast_conv_plan, fast_conv_fft_plan = plan_fast_conv(Axt, Axt, padding)
-  RTC = runTimeConstantsGPU(kxMax, cx, d_eff, khi_eff, dOmega, padding, SHG_SHIFT, ckx, comega, comegaTHz, comegaSHG, omegaMax, lambda0, omega0, inputs.cry)
+  RTC = runTimeConstantsGPU(kxMax, cx, d_eff, khi_eff, dOmega, padding, SHG_SHIFT, ckx, comega, comegaTHz, comegaSHG, omegaMax, lambda0, omega0, inputs.cry, groupsize, gridsize)
   TFC = THzFieldConstantsGPU(alpha, kz_omegaTHz)
   PFC = pumpFieldConstantsGPU(kx_omega, kz_omega)
   SFC = SHFieldConstantsGPU(kx_omegaSHG, kz_omegaSHG)

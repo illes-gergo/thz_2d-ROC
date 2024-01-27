@@ -1,4 +1,4 @@
-using CUDA, Base.Threads
+using AMDGPU, Base.Threads
 include("typedefs.jl")
 
 function imp_terjedes(t, Y, PFC::pumpFieldConstantsGPU, RTC::runTimeConstantsGPU)
@@ -144,11 +144,11 @@ function thz_feedback_n2_SHG(t, Y::compositeInputGPU, misc::miscInputsGPU)
   ASH = Y.ASH
   dAop_lin = imp_terjedes(t, Aop, misc.PFC, misc.RTC)
   dTHz_gen = -1im .* misc.RTC.comegaTHz .^ 2 ./ 2 ./ misc.TFC.kz_omegaTHz ./ misc.NC.e0 ./ misc.NC.c0 .^ 2 .* thz_generation(t, Aop, misc) .* exp.(1im .* misc.TFC.kz_omegaTHz .* t) - misc.TFC.alpha / 2 .* ATHz
-  if sum(isnan.(dTHz_gen)) > 0
-    #      println("$(sum(isnan.(temp_val))) NaN value not handled")
-    dTHz_gen[isnan.(dTHz_gen)] = zeros(size(dTHz_gen[isnan.(dTHz_gen)]))
-  end
-
+    # println("$(sum(isnan.(temp_val))) NaN value not handled")
+    #dTHz_gen[isnan.(dTHz_gen)] .= zeros(size(dTHz_gen[isnan.(dTHz_gen)]))
+    #map(x->0,dTHz_gen[isnan.(dTHz_gen)])
+    @roc gridsize=misc.RTC.gridsize groupsize=misc.RTC.groupsize changenanKernel(dTHz_gen)
+    AMDGPU.synchronize()
   dAopCsc = thz_cascade(t, Aop, ATHz, misc) #=zeros(size(Aop))=#
   dAopn2 = n2calc(t, Aop, misc) #=zeros(size(Aop))=#
   dAopSH = SH_OP_INTERACTION(t, Aop, ASH, misc)

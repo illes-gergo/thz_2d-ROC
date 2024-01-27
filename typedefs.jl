@@ -1,4 +1,4 @@
-using CUDA
+using AMDGPU
 import Base.+, Base.*, Base./
 
 struct userinputs
@@ -49,7 +49,6 @@ struct compositeInput
   function compositeInput(inp::compositeInputGPU)
     if sum(isnan.(inp.Akxo)) > 0
       println("NaN values not handled at fetch!")
-      error()
     end
     new(Array(inp.Akxo), Array(inp.ATHz_kx_o), Array(inp.ASH))
   end
@@ -127,6 +126,7 @@ end
 struct THzFieldConstants
   alpha::Array{Float64,2}
   kz_omegaTHz::Array{Float64,2}
+  kz_omegaTHz_for_division::Array{Float64,2}
 end
 
 struct SHFieldConstants
@@ -177,8 +177,10 @@ struct runTimeConstantsGPU
   lambda0::Float64
   omega0::Float64
   cry::Int
-  function runTimeConstantsGPU(kxMax, cx, d_eff, khi_eff, dOmega, padding, SHG_SHIFT, ckx, comega, comegaTHz, comegaSHG, omegaMax, lambda0, omega0, cry)
-    new(kxMax, ROCArray(cx), d_eff, khi_eff, dOmega, ROCArray(padding), SHG_SHIFT, ROCArray(ckx), ROCArray(comega), ROCArray(comegaTHz), ROCArray(comegaSHG), omegaMax, lambda0, omega0, cry)
+  groupsize
+  gridsize
+  function runTimeConstantsGPU(kxMax, cx, d_eff, khi_eff, dOmega, padding, SHG_SHIFT, ckx, comega, comegaTHz, comegaSHG, omegaMax, lambda0, omega0, cry, groupsize, gridsize)
+    new(kxMax, ROCArray(cx), d_eff, khi_eff, dOmega, ROCArray(padding), SHG_SHIFT, ROCArray(ckx), ROCArray(comega), ROCArray(comegaTHz), ROCArray(comegaSHG), omegaMax, lambda0, omega0, cry, groupsize, gridsize)
   end
 end
 
@@ -186,7 +188,7 @@ struct THzFieldConstantsGPU
   alpha::ROCArray{Float64,2}
   kz_omegaTHz::ROCArray{Float64,2}
   function THzFieldConstantsGPU(alpha, kz_omegaTHz)
-    new(ROCArray(alpha), ROCArray(kz_omegaTHz))
+	  new(ROCArray(alpha), ROCArray(kz_omegaTHz))
   end
 end
 
@@ -213,4 +215,14 @@ struct miscInputsGPU
   TFC::THzFieldConstantsGPU
   PFC::pumpFieldConstantsGPU
   SFC::SHFieldConstantsGPU
+end
+
+function changenanKernel(in)
+	ix = (workgroupDim().x * (workgroupIdx().x - 1)) + workitemIdx().x
+	iy = (workgroupDim().y * (workgroupIdx().y - 1)) + workitemIdx().y
+
+	if isnan(in[ix,iy])
+		in[ix,iy] = 0
+	end
+	return nothing
 end

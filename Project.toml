@@ -1,5 +1,5 @@
 [deps]
-CUDA = "052768ef-5323-5732-b1bb-66c8b64840ba"
+AMDGPU = "21141c5a-9bdb-4563-92ae-f87d6854732e"
 Dates = "ade2ca70-3891-5945-98fb-dc099432e06a"
 FFTW = "7a1cc6ca-52ef-59f5-83cd-3a7055c09341"
 FourierTools = "b18b359b-aebc-45ac-a139-9c0ccbb2871e"
