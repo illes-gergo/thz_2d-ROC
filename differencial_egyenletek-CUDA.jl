@@ -147,8 +147,7 @@ function thz_feedback_n2_SHG(t, Y::compositeInputGPU, misc::miscInputsGPU)
     # println("$(sum(isnan.(temp_val))) NaN value not handled")
     #dTHz_gen[isnan.(dTHz_gen)] .= zeros(size(dTHz_gen[isnan.(dTHz_gen)]))
     #map(x->0,dTHz_gen[isnan.(dTHz_gen)])
-    @roc gridsize=misc.RTC.gridsize groupsize=misc.RTC.groupsize changenanKernel(dTHz_gen)
-    AMDGPU.synchronize()
+    AMDGPU.@sync @roc gridsize=misc.RTC.gridsize groupsize=misc.RTC.groupsize changenanKernel(dTHz_gen)
   dAopCsc = thz_cascade(t, Aop, ATHz, misc) #=zeros(size(Aop))=#
   dAopn2 = n2calc(t, Aop, misc) #=zeros(size(Aop))=#
   dAopSH = SH_OP_INTERACTION(t, Aop, ASH, misc)
