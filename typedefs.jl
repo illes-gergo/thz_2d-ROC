@@ -138,7 +138,7 @@ struct runTimeConstants
   kxMax::Float64
   cx::Array{Float64,2}
   d_eff::Float64
-  khi_eff::Float64
+  khi_eff
   dOmega::Float64
   padding::Array{Float64,2}
   SHG_SHIFT::Int
@@ -165,7 +165,7 @@ struct runTimeConstantsGPU
   kxMax::Float64
   cx::ROCArray{Float64,2}
   d_eff::Float64
-  khi_eff::Float64
+  khi_eff
   dOmega::Float64
   padding::ROCArray{Float64,2}
   SHG_SHIFT::Int
@@ -180,7 +180,7 @@ struct runTimeConstantsGPU
   groupsize
   gridsize
   function runTimeConstantsGPU(kxMax, cx, d_eff, khi_eff, dOmega, padding, SHG_SHIFT, ckx, comega, comegaTHz, comegaSHG, omegaMax, lambda0, omega0, cry, groupsize, gridsize)
-    new(kxMax, ROCArray(cx), d_eff, khi_eff, dOmega, ROCArray(padding), SHG_SHIFT, ROCArray(ckx), ROCArray(comega), ROCArray(comegaTHz), ROCArray(comegaSHG), omegaMax, lambda0, omega0, cry, groupsize, gridsize)
+    new(kxMax, ROCArray(cx), d_eff, ROCArray(khi_eff), dOmega, ROCArray(padding), SHG_SHIFT, ROCArray(ckx), ROCArray(comega), ROCArray(comegaTHz), ROCArray(comegaSHG), omegaMax, lambda0, omega0, cry, groupsize, gridsize)
   end
 end
 

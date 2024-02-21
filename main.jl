@@ -15,7 +15,6 @@ function runcalc()
   inputs::userinputs = setInput()
 
   c0 = 3e8
-  khi_eff = 2 * deffTHz(inputs.cry)
   d_eff = deff(inputs.cry)
   e0 = 8.854187817e-12
 
@@ -53,11 +52,14 @@ function runcalc()
 
   comegaTHz = comega_ .- omega[1]
 
+
   clambda = c0 ./ comega * 2 * pi
 
   cLambdaSHG = c0 ./ comegaSHG * 2 * pi
 
   n = neo(clambda, 300, inputs.cry)
+
+  khi_eff = 2 * deffTHz(inputs.cry, Omega=comegaTHz, nOmega0 = neo(lambda0,300,inputs.cry))
 
   k_omega = n .* comega ./ c0
   kx_omega = real.(k_omega .* sin(inputs.gamma))
@@ -116,7 +118,8 @@ function runcalc()
   FID = h5open(inputs.STR * ".hdf5", "w")
   entryCounter::Int = 1
   #STR = "elojel_minusz"
-  #error()
+
+  #return(misc)
 
   for ii in 1:(length(z)-1)
 
@@ -163,4 +166,5 @@ function runcalc()
   FID["/x"] = collect(inputs.x)
   FID["/t"] = collect(inputs.t)
   close(FID)
+  return nothing
 end

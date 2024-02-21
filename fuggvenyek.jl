@@ -1,14 +1,20 @@
 using Symbolics
 
-function deffTHz(cry)
+function deffTHz(cry; Omega::Array=[0], nOmega0::Float64=0)
   if cry == 0 # LN
     deff_ = 168e-12
   elseif cry == 2 # ZnTe
-    deff_ = 0
+    dE = 4.2e-12
+    C = -0.07
+    omega0 = 2 * pi * 5.35e12
+    Lambda0 = 2 * pi * 0.09e12
+    r41 = @. dE * (1 + ((C * omega0^2) / (omega0^2 - Omega^2 - 1im * Lambda0 * Omega)))
+    deff_ = @. abs(2 / sqrt(3) * (nOmega0^4 * r41) / (1 + C) / 4)
+    deff_[isnan.(deff_)] .= 0
   elseif cry == 3 # GaP
     deff_ = 0
   elseif cry == 4 # GaAs
-    deff_ = 2 / sqrt(3) * 86.5e-12
+    deff_ = 2 / sqrt(3) * 86.5e-12 .* ones(size(Omega))
   elseif cry == 7 # ZnSe
     deff_ = 0
   end
@@ -92,6 +98,8 @@ end
 function n2value(cry)
   if cry == 4 # GaAs
     n2_ = 5.9e-18
+  elseif cry == 2
+    n2_ = 2.25e-18
   end
   return n2_
 end
@@ -99,12 +107,15 @@ end
 function deff(cry)
   if cry == 4 #% GaAs
     deff_ = 2 / sqrt(3) * 80e-12
+  elseif cry == 2
+    deff_ = 92.2e-12
   end
   return deff_
 end
 
 function aTHzo(omega, T, cry)
-  alpha = -2 .* omega / 3e8 .* imag(sqrt.(er(omega, T, cry)))
+  alpha = abs.(-2 .* omega / 3e8 .* imag(sqrt.(er(omega, T, cry))))
+  alpha[alpha .> 1e5] .= 1e5
   return alpha
 end
 

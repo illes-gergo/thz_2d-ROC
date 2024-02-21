@@ -13,7 +13,7 @@ end
 
 function thz_generation(t, Y, misc::miscInputsGPU)
   Eop = misc.FOPS.ifft_kx_x * ifftshift(Y, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.PFC.kx_omega .* misc.RTC.cx - 1im .* misc.PFC.kz_omega .* t)
-  conv_part = fast_forward_convolution(Eop, conj(Eop), misc.RTC, misc.FOPS) * misc.NC.e0 * misc.RTC.khi_eff * misc.RTC.dOmega
+  conv_part = fast_forward_convolution(Eop, conj(Eop), misc.RTC, misc.FOPS) * misc.NC.e0 .* misc.RTC.khi_eff * misc.RTC.dOmega
   return fftshift(misc.FOPS.fft_x_kx * (conv_part), 2) ./ misc.RTC.kxMax
 end
 
@@ -74,8 +74,8 @@ end
 function thz_cascade(t, Aop, ATHz, misc::miscInputsGPU)
   Eop = misc.FOPS.ifft_kx_x * ifftshift(Aop, 2) * misc.RTC.kxMax .* exp.(-1im .* misc.PFC.kx_omega .* misc.RTC.cx - 1im .* misc.PFC.kz_omega .* t)
   ETHz = misc.FOPS.ifft_kx_x * ifftshift(ATHz .* misc.RTC.kxMax .* exp.(-1im .* misc.TFC.kz_omegaTHz .* t), 2)
-  temp_val1 = misc.NC.e0 .* misc.RTC.khi_eff .* fast_forward_convolution(Eop, conj(ETHz), misc.RTC, misc.FOPS)
-  temp_val2 = misc.NC.e0 .* misc.RTC.khi_eff .* fast_backward_convolution(Eop, ETHz, misc.RTC, misc.FOPS)
+  temp_val1 = misc.NC.e0 .* fast_forward_convolution(Eop, conj(ETHz) .* misc.RTC.khi_eff, misc.RTC, misc.FOPS)
+  temp_val2 = misc.NC.e0 .* fast_backward_convolution(Eop, ETHz .* misc.RTC.khi_eff, misc.RTC, misc.FOPS)
   return fftshift(misc.FOPS.fft_x_kx * ((temp_val1 .+ temp_val2) .* exp.(+1im .* misc.PFC.kx_omega .* misc.RTC.cx)) ./ misc.RTC.kxMax .* misc.RTC.dOmega, 2)
 end
 
@@ -144,10 +144,10 @@ function thz_feedback_n2_SHG(t, Y::compositeInputGPU, misc::miscInputsGPU)
   ASH = Y.ASH
   dAop_lin = imp_terjedes(t, Aop, misc.PFC, misc.RTC)
   dTHz_gen = -1im .* misc.RTC.comegaTHz .^ 2 ./ 2 ./ misc.TFC.kz_omegaTHz ./ misc.NC.e0 ./ misc.NC.c0 .^ 2 .* thz_generation(t, Aop, misc) .* exp.(1im .* misc.TFC.kz_omegaTHz .* t) - misc.TFC.alpha / 2 .* ATHz
-    # println("$(sum(isnan.(temp_val))) NaN value not handled")
-    #dTHz_gen[isnan.(dTHz_gen)] .= zeros(size(dTHz_gen[isnan.(dTHz_gen)]))
-    #map(x->0,dTHz_gen[isnan.(dTHz_gen)])
-    AMDGPU.@sync @roc gridsize=misc.RTC.gridsize groupsize=misc.RTC.groupsize changenanKernel(dTHz_gen)
+  # println("$(sum(isnan.(temp_val))) NaN value not handled")
+  #dTHz_gen[isnan.(dTHz_gen)] .= zeros(size(dTHz_gen[isnan.(dTHz_gen)]))
+  #map(x->0,dTHz_gen[isnan.(dTHz_gen)])
+  AMDGPU.@sync @roc gridsize = misc.RTC.gridsize groupsize = misc.RTC.groupsize changenanKernel(dTHz_gen)
   dAopCsc = thz_cascade(t, Aop, ATHz, misc) #=zeros(size(Aop))=#
   dAopn2 = n2calc(t, Aop, misc) #=zeros(size(Aop))=#
   dAopSH = SH_OP_INTERACTION(t, Aop, ASH, misc)
