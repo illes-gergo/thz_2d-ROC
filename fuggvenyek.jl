@@ -2,7 +2,7 @@ using Symbolics
 
 function deffTHz(cry; Omega::Array=[0], nOmega0::Float64=0)
   if cry == 0 # LN
-    deff_ = 168e-12
+    deff_ = 168e-12 .* ones(size(Omega))
   elseif cry == 2 # ZnTe
     dE = 4.2e-12
     C = -0.07
@@ -76,6 +76,25 @@ function ngp(lambda, T, cry)
     a = n0 - l * Symbolics.derivative(n0, l)
     ng = Symbolics.value(substitute(a, l => lambda1))
     return ng
+  elseif cry == 0
+    @variables l
+    a1 = 5.078
+    a2 = 0.0964
+    a3 = 0.2065
+    a4 = 61.16
+    a5 = 10.55
+    a6 = 1.59e-2
+    b1 = 4.677e-7
+    b2 = 7.822e-8
+    b3 = -2.653e-8
+    b4 = 1.096e-4
+    T = T - 273
+    f = (T - 24.5) * (T + 570.82)
+
+    n0 = sqrt((a1 + b1 * f + (a2 + b2 * f) ./ (l .^ 2 - (a3 + b3 * f)^2) + (a4 + b4 * f) ./ (l .^ 2 - a5^2) - a6 * l .^ 2))
+    a = n0 - l * Symbolics.derivative(n0, l)
+    ng = Symbolics.value(substitute(a, l => lambda1))
+    return ng
   end
 end
 
@@ -100,6 +119,8 @@ function n2value(cry)
     n2_ = 5.9e-18
   elseif cry == 2
     n2_ = 2.25e-18
+  elseif cry == 0
+    n2_ = 9.33e-20
   end
   return n2_
 end
@@ -109,13 +130,19 @@ function deff(cry)
     deff_ = 2 / sqrt(3) * 80e-12
   elseif cry == 2
     deff_ = 92.2e-12
+  elseif cry == 0
+    deff_ = 0
   end
   return deff_
 end
 
 function aTHzo(omega, T, cry)
-  alpha = abs.(-2 .* omega / 3e8 .* imag(sqrt.(er(omega, T, cry))))
-  alpha[alpha .> 1e5] .= 1e5
+  if cry != 0
+    alpha = abs.(-2 .* omega / 3e8 .* imag(sqrt.(er(omega, T, cry))))
+  elseif cry == 0
+    alpha =@. 100 * (2.16411e-12 * omega / 2 / pi + 10.81e-24 * (omega / 2 / pi) .^ 2)
+  end
+  alpha[alpha.>1e5] .= 1e5
   return alpha
 end
 

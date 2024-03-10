@@ -4,13 +4,13 @@ function setInput()::userinputs
   Nx = 2048 #2048
   Nt = 1024 # 1024
 
-  cry = 4 # GaAs
+  cry = 4 #2->ZnTe; 4->GaAs
 
 
   sigma_t = 1e-12
-  sigma_x = 2e-3
+  sigma_x = 1e-3
   lambda0 = 10.6e-6
-  I0 = 50e13
+  I0 = 60e13
 
   str_prefix = "/home/illesg/cst/2d-calculations/"
   STR = str_prefix * "gpu-test-GaAs-$(I0/1e13)GW"
