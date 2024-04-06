@@ -4,15 +4,16 @@ using LazyGrids, FFTW, FourierTools, Base.Threads, Dates, HDF5, AMDGPU
 
 #default(levels=100)
 #gr()
+include("valtozok.jl")
 include("gauss_impulzus.jl")
 include("diffegy_megoldo.jl")
 include("differencial_egyenletek-CUDA.jl")
 include("fuggvenyek.jl")
 include("typedefs.jl")
-include("valtozok.jl")
 
-function runcalc()
-  inputs::userinputs = setInput()
+function runcalc(I0)
+  #inputs = userinputs(sigma_t = tau)
+  inputs = userinputs(I0 = I0)
 
   c0 = 3e8
   d_eff = deff(inputs.cry)
@@ -166,5 +167,6 @@ function runcalc()
   FID["/x"] = collect(inputs.x)
   FID["/t"] = collect(inputs.t)
   close(FID)
+  AMDGPU.synchronize(blocking=true)
   return nothing
 end

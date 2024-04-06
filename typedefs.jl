@@ -1,21 +1,6 @@
 using AMDGPU
 import Base.+, Base.*, Base./
-
-struct userinputs
-  Nx::Int
-  Nt::Int
-  cry::Int
-  sigma_t::Float64
-  sigma_x::Float64
-  lambda0::Float64
-  I0::Float64
-  STR::String
-  gamma::Float64
-  dz::Float64
-  z_end::Float64
-  x::Vector
-  t::Vector
-end
+include("valtozok.jl")
 
 struct gaussVars
   E0::Float64
