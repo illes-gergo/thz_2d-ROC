@@ -128,9 +128,12 @@ function nTHzo(omega, T, cry)
       nTHz = @. 4.91372 - 0.01747e-12 * omega / 2 / pi + 0.04004e-24 * (omega / 2 / pi) .^ 2
     end
 
-
   elseif cry == 4 || cry == 2
     nTHz = real.(sqrt.(er(omega, T, cry)))
+
+  elseif cry == 7 # ZnSe
+
+
   end
   return nTHz
 end
