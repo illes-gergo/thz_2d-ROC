@@ -52,6 +52,15 @@ function neo(lambda, T, cry)
 
   elseif cry == 2 # ZnTe
     n = @. real(sqrt(Complex(9.92 + 0.42530 / ((lambda * 1e6)^2 - 0.37766^2) + 8414.13 / ((lambda * 1e6)^2 - 56.5^2))))
+  elseif cry == 7 # ZnSe
+    a = 4.45813734
+    b = -0.200859853
+    c = 0.467216334
+    d = -0.391371166
+    e = 2.89566290
+    f = -47.1362108
+    n = @. real(sqrt(Complex(a * lambda1^2 / (lambda1^2 - b^2) + c * lambda1^2 / (lambda1^2 - d^2) + e * lambda1^2 / (lambda1^2 - f^2)) + 1))
+    return n
   end
 end
 
@@ -140,7 +149,7 @@ function aTHzo(omega, T, cry)
   if cry != 0
     alpha = abs.(-2 .* omega / 3e8 .* imag(sqrt.(er(omega, T, cry))))
   elseif cry == 0
-    alpha =@. 100 * (2.16411e-12 * omega / 2 / pi + 10.81e-24 * (omega / 2 / pi) .^ 2)
+    alpha = @. 100 * (2.16411e-12 * omega / 2 / pi + 10.81e-24 * (omega / 2 / pi) .^ 2)
   end
   alpha[alpha.>1e5] .= 1e5
   return alpha
