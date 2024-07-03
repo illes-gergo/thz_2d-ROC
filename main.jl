@@ -11,9 +11,9 @@ include("differencial_egyenletek-CUDA.jl")
 include("fuggvenyek.jl")
 include("typedefs.jl")
 
-function runcalc(I0)
+function runcalc()
   #inputs = userinputs(sigma_t = tau)
-  inputs = userinputs(I0 = I0)
+  inputs = userinputs()
 
   c0 = 3e8
   d_eff = deff(inputs.cry)
