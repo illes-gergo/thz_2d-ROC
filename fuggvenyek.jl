@@ -104,6 +104,18 @@ function ngp(lambda, T, cry)
     a = n0 - l * Symbolics.derivative(n0, l)
     ng = Symbolics.value(substitute(a, l => lambda1))
     return ng
+  elseif cry == 7
+    @variables l
+    a = 4.45813734
+    b = -0.200859853
+    c = 0.467216334
+    d = -0.391371166
+    e = 2.89566290
+    f = -47.1362108
+    n0 = sqrt(a * l^2 / (l^2 - b^2) + c * l^2 / (l^2 - d^2) + e * l^2 / (l^2 - f^2)) + 1
+    a = n0 - l * Symbolics.derivative(n0, l)
+    ng = Symbolics.value(substitute(a, l => lambda1))
+    return ng
   end
 end
 
