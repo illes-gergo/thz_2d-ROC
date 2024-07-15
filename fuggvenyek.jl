@@ -160,6 +160,8 @@ function deff(cry)
     deff_ = 92.2e-12
   elseif cry == 0
     deff_ = 0
+  elseif cry == 7
+    deff_ = 73e-12
   end
   return deff_
 end
