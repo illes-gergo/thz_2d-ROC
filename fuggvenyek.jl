@@ -16,7 +16,7 @@ function deffTHz(cry; Omega::Array=[0], nOmega0::Float64=0)
   elseif cry == 4 # GaAs
     deff_ = 2 / sqrt(3) * 86.5e-12 .* ones(size(Omega))
   elseif cry == 7 # ZnSe
-    deff_ = 0
+    deff_ = 73e-12
   end
   return deff_
 end
@@ -128,10 +128,12 @@ function nTHzo(omega, T, cry)
       nTHz = @. 4.91372 - 0.01747e-12 * omega / 2 / pi + 0.04004e-24 * (omega / 2 / pi) .^ 2
     end
 
-  elseif cry == 4 || cry == 2
+  elseif cry == 4 || cry == 2 || cry == 7
     nTHz = real.(sqrt.(er(omega, T, cry)))
 
-  elseif cry == 7 # ZnSe
+ # elseif cry == 7 # ZnSe
+ #   nu = @. omega / 2 / pi
+ #   nTHz = @. 2.99865 - 0.00151 * nu + 0.01895 * nu^2
 
 
   end
@@ -145,6 +147,8 @@ function n2value(cry)
     n2_ = 2.25e-18
   elseif cry == 0
     n2_ = 9.33e-20
+  elseif cry == 7
+    n2_ = 65e-20
   end
   return n2_
 end
@@ -165,6 +169,9 @@ function aTHzo(omega, T, cry)
     alpha = abs.(-2 .* omega / 3e8 .* imag(sqrt.(er(omega, T, cry))))
   elseif cry == 0
     alpha = @. 100 * (2.16411e-12 * omega / 2 / pi + 10.81e-24 * (omega / 2 / pi) .^ 2)
+  #  elseif cry == 7
+  #  nu = omega / 2 / pi
+  #  alpha = @. 100 * (5.188 - 8.825 * nu + 10.86 * nu^2 - 3.344 * nu^3 + 0.37362 * nu^4)
   end
   alpha[alpha.>1e5] .= 1e5
   return alpha
@@ -182,6 +189,14 @@ function er(omega, T, cry)
 
       er_ = e_inf * (1 .+ (nu_L^2 .- nu_T^2) ./ (nu_T^2 .- nu .^ 2 .+ 1im * G * nu))
     end
+  elseif cry == 7
+    Einf = 5.9
+    rho = 2.9
+    v_To = 207
+    gamma0 = 6.50
+    v =@. omega / 2 / pi / 3e8 * 1e-2
+    er_ =@. Einf + (rho * v_To .^ 2) ./ (v_To .^ 2 - v .^ 2 + 1im * gamma0 * v)
+
   elseif cry == 2
     A = [4.262e-2, 1.193e-2, 3, 0.008, 0.0029, 0.005]
     oi = [56, 94.82, 182, 239, 299, 351]
