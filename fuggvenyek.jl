@@ -53,6 +53,7 @@ function neo(lambda, T, cry)
   elseif cry == 2 # ZnTe
     n = @. real(sqrt(Complex(9.92 + 0.42530 / ((lambda * 1e6)^2 - 0.37766^2) + 8414.13 / ((lambda * 1e6)^2 - 56.5^2))))
   elseif cry == 7 # ZnSe
+    lambda1 = lambda * 1e6
     a = 4.45813734
     b = -0.200859853
     c = 0.467216334
@@ -114,8 +115,8 @@ function ngp(lambda, T, cry)
     f = -47.1362108
     n0 = sqrt(a * l^2 / (l^2 - b^2) + c * l^2 / (l^2 - d^2) + e * l^2 / (l^2 - f^2)) + 1
     a = n0 - l * Symbolics.derivative(n0, l)
-    ng = Symbolics.value(substitute(a, l => lambda1))
-    return ng
+    ng = eval(build_function(a,l,expression=Val{false}))
+    return ng.(lambda1)
   end
 end
 
