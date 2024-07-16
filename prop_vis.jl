@@ -4,7 +4,7 @@ include("valtozok.jl")
 
 cry = 7
 
-inputs = userinputs(cry=cry, gamma=0)
+inputs = userinputs(cry=cry)
 
 
 c0 = 3e8
@@ -73,6 +73,7 @@ l2 = Layout(title=attr(text="THz fázis törésmutató"))
 s2 = scatter(x=comegaTHz[:,1]/2/pi, y=nTHz[:,1])
 l3 = Layout(title=attr(text="Pumpa csoport törésmutató"))
 s3 = scatter(x=clambda[:,1], y=ng[:,1])
+println("gamma = $(rad2deg(inputs.gamma))")
 display(plot(s1,l1))
 display(plot(s2,l2))
 display(plot(s3,l3))

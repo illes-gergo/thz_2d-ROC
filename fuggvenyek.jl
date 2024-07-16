@@ -113,9 +113,9 @@ function ngp(lambda, T, cry)
     d = -0.391371166
     e = 2.89566290
     f = -47.1362108
-    n0 = sqrt(a * l^2 / (l^2 - b^2) + c * l^2 / (l^2 - d^2) + e * l^2 / (l^2 - f^2)) + 1
+    n0 = sqrt(a * l^2 / (l^2 - b^2) + c * l^2 / (l^2 - d^2) + e * l^2 / (l^2 - f^2) + 1)
     a = n0 - l * Symbolics.derivative(n0, l)
-    ng = eval(build_function(a,l,expression=Val{false}))
+    ng = eval(build_function(a, l, expression=Val{false}))
     return ng.(lambda1)
   end
 end
@@ -132,9 +132,9 @@ function nTHzo(omega, T, cry)
   elseif cry == 4 || cry == 2 || cry == 7
     nTHz = real.(sqrt.(er(omega, T, cry)))
 
- # elseif cry == 7 # ZnSe
- #   nu = @. omega / 2 / pi
- #   nTHz = @. 2.99865 - 0.00151 * nu + 0.01895 * nu^2
+    # elseif cry == 7 # ZnSe
+    #   nu = @. omega / 2 / pi
+    #   nTHz = @. 2.99865 - 0.00151 * nu + 0.01895 * nu^2
 
 
   end
@@ -172,9 +172,9 @@ function aTHzo(omega, T, cry)
     alpha = abs.(-2 .* omega / 3e8 .* imag(sqrt.(er(omega, T, cry))))
   elseif cry == 0
     alpha = @. 100 * (2.16411e-12 * omega / 2 / pi + 10.81e-24 * (omega / 2 / pi) .^ 2)
-  #  elseif cry == 7
-  #  nu = omega / 2 / pi
-  #  alpha = @. 100 * (5.188 - 8.825 * nu + 10.86 * nu^2 - 3.344 * nu^3 + 0.37362 * nu^4)
+    #  elseif cry == 7
+    #  nu = omega / 2 / pi
+    #  alpha = @. 100 * (5.188 - 8.825 * nu + 10.86 * nu^2 - 3.344 * nu^3 + 0.37362 * nu^4)
   end
   alpha[alpha.>1e5] .= 1e5
   return alpha
@@ -197,8 +197,8 @@ function er(omega, T, cry)
     rho = 2.9
     v_To = 207
     gamma0 = 6.50
-    v =@. omega / 2 / pi / 3e8 * 1e-2
-    er_ =@. Einf + (rho * v_To .^ 2) ./ (v_To .^ 2 - v .^ 2 + 1im * gamma0 * v)
+    v = @. omega / 2 / pi / 3e8 * 1e-2
+    er_ = @. Einf + (rho * v_To .^ 2) ./ (v_To .^ 2 - v .^ 2 + 1im * gamma0 * v)
 
   elseif cry == 2
     A = [4.262e-2, 1.193e-2, 3, 0.008, 0.0029, 0.005]
