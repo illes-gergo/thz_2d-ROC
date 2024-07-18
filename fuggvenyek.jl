@@ -16,7 +16,7 @@ function deffTHz(cry; Omega::Array=[0], nOmega0::Float64=0)
   elseif cry == 4 # GaAs
     deff_ = 2 / sqrt(3) * 86.5e-12 .* ones(size(Omega))
   elseif cry == 7 # ZnSe
-    deff_ = 73e-12
+    deff_ = 21e-12 .* ones(size(Omega))
   end
   return deff_
 end
@@ -116,7 +116,7 @@ function ngp(lambda, T, cry)
     n0 = sqrt(a * l^2 / (l^2 - b^2) + c * l^2 / (l^2 - d^2) + e * l^2 / (l^2 - f^2) + 1)
     a = n0 - l * Symbolics.derivative(n0, l)
     ng = eval(build_function(a, l, expression=Val{false}))
-    return ng.(lambda1)
+    return ng(lambda1)
   end
 end
 
@@ -162,7 +162,7 @@ function deff(cry)
   elseif cry == 0
     deff_ = 0
   elseif cry == 7
-    deff_ = 73e-12
+    deff_ = 24e-12
   end
   return deff_
 end

@@ -20,12 +20,12 @@ end =#
 @kwdef struct userinputs
   Nx::Int = 2048
   Nt::Int = 1024
-  cry::Int = 4 # 2->ZnTe; 4->GaAs
-  sigma_t::Float64 = 0.5e-12
+  cry::Int = 7 # 2->ZnTe; 4->GaAs; 7->ZnSe;
+  sigma_t::Float64 = 1.0e-12
   sigma_x::Float64 = 2.0e-3
   lambda0::Float64 = 10.6e-6
-  I0::Float64 = 50e13
-  STR::String = "/home/illesg/cst/2d-calculations/hebling-1-gaas$(I0/1e13)GW-wide"
+  I0::Float64 = 100e13
+  STR::String = "/home/illesg/cst/2d-calculations/znse_test$(I0/1e13)GW_low_nonlin-wide"
   gamma::Float64 = acos(ngp(lambda0, 300, cry) / nTHzo(0.5e12 * 2 * pi, 300, cry))
   dz::Float64 = 1e-6
   z_end::Float64 = 8e-3 + dz

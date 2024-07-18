@@ -129,7 +129,7 @@ function runcalc()
     if (ii == length(z) - 1 || mod(ii, 20) == 0 || ii == 1)
       A_kompozitCPU = compositeInput(A_kompozit)
       Aop_kx_o = A_kompozitCPU.Akxo
-      #=if sum(isnan.(Aop_kx_o)) > 0
+      if sum(isnan.(Aop_kx_o)) > 0
         FID["/maxEntry"] = entryCounter - 1
         FID["/gamma"] = rad2deg(inputs.gamma)
         FID["/z"] = z
@@ -139,7 +139,7 @@ function runcalc()
         FID["/t"] = collect(inputs.t)
         close(FID)
         error("NaN value $(sum(isnan.(Aop_kx_o)))")
-      end =#
+      end 
       Axo = FOPSCPU.ifft_kx_x * ifftshift(Aop_kx_o, 2) .* kxMax .* exp.(-1im .* kx_omega .* cx - 1im .* kz_omega .* z[ii+1])
       Axt = FOPSCPU.ifft_o_t * ifftshift(Axo .* omegaMax, 1)
       Aop_kx_oSH = A_kompozitCPU.ASH
@@ -170,3 +170,5 @@ function runcalc()
   AMDGPU.synchronize(blocking=true)
   return nothing
 end
+
+runcalc()
